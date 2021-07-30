@@ -161,6 +161,14 @@ def stage_runtime_dependencies(
     # TODO: support python packages (only apt currently supported)
     apt_packages: Set[str] = set()
 
+    # when ROS packages were compiled locally using colcon
+    # the install folder SNAPCRAFT_PART_INSTALL contains a COLCON_IGNORE file
+    # we have to remove the COLCON_IGNORE to allow to 
+    # detect the packages using catkin_packages.find_packages
+    colcon_ignore_file = pathlib.Path(part_install) / "COLCON_IGNORE"
+    if colcon_ignore_file.exists():
+        colcon_ignore_file.unlink()
+
     installed_pkgs = catkin_packages.find_packages(part_install).values()
     for pkg in catkin_packages.find_packages(part_src).values():
         for dep in pkg.exec_depends:
